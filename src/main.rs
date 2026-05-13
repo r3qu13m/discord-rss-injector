@@ -106,6 +106,7 @@ impl App {
 async fn main() -> Result<(), Error> {
     rustls::crypto::CryptoProvider::install_default(rustls::crypto::ring::default_provider())
         .expect("Error: Can't set the default crypto provider");
+    env_logger::init();
 
     let mut app = App::new("rss.json")?;
     loop {
