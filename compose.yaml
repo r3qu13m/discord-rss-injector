@@ -1,0 +1,11 @@
+services:
+  rss-feed-bot:
+    build:
+      context: .
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ./rss.json:/app/rss.json:rw
+

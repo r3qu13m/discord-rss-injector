@@ -109,6 +109,14 @@ async fn main() -> Result<(), Error> {
     env_logger::init();
 
     let mut app = App::new("rss.json")?;
+
+    ctrlc::set_handler(move || {
+        log::warn!("Ctrl-C");
+        // TODO: save context
+        std::process::exit(1);
+    })
+    .expect("Error setting Ctrl-C handler");
+
     loop {
         app.run().await;
         app.save()?;
