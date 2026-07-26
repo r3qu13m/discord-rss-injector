@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+const USER_AGENT_STRING: &str = "RSS Feed Bot/1.0";
+
 #[derive(Debug)]
 pub struct FeedEntry {
     pub entry: feed_rs::model::Entry,
@@ -32,9 +34,11 @@ impl FeedReceiver {
     }
 
     pub async fn receive(&mut self) -> Result<Vec<FeedEntry>, crate::Error> {
-        let res = reqwest::get(self.url.clone()).await?;
-        let xml = res.text().await?;
-        let res = feed_rs::parser::parse(xml.as_bytes())?;
+        let client = reqwest::Client::builder()
+            .user_agent(USER_AGENT_STRING)
+            .build()?;
+        let res = client.get(self.url.clone()).send().await?;
+        let res = feed_rs::parser::parse(res.bytes().await?.to_vec().as_slice())?;
         let mut latest_feed = self.last_published.unwrap_or(0);
         let criteria = latest_feed;
         let mut ret = vec![];
