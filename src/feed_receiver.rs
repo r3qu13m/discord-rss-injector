@@ -39,11 +39,18 @@ impl FeedReceiver {
         let criteria = latest_feed;
         let mut ret = vec![];
         for entry in res.entries {
-            if entry.published.is_none() {
-                log::warn!("Entry hasn't published datetime: Skipped");
-                continue;
-            }
-            let published = entry.published.unwrap().timestamp();
+            let published = {
+                if entry.published.is_none() {
+                    log::warn!("Try to use updated instead of published_at");
+                    if entry.updated.is_none() {
+                        log::warn!("Entry hasn't updated / published_at: Skipped");
+                        continue;
+                    }
+                    entry.updated.unwrap().timestamp()
+                } else {
+                    entry.published.unwrap().timestamp()
+                }
+            };
             if published <= criteria {
                 continue;
             }
